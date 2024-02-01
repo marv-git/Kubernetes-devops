@@ -1,5 +1,5 @@
 pipeline {
-  agent {label 'dockerslave'} 
+  agent {label 'clustermanager'}
   options {
     buildDiscarder(logRotator(numToKeepStr: '5'))
   }
@@ -9,7 +9,7 @@ pipeline {
   stages {
     stage('Build') {
       steps {
-        sh 'docker build -t marvdocking/jenkins-nginx:devsecops-web .'
+        sh 'docker build -t marvdocking/mywebapp-k8s:latest .'
       }
     }
     stage('Login') {
@@ -19,13 +19,13 @@ pipeline {
     }
     stage('Push') {
       steps {
-        sh 'docker push marvdocking/jenkins-nginx:devsecops-web'
+        sh 'docker push marvdocking/mywebapp-k8s:latest'
       }
     }
     stage('Deploy') {
             steps {
               script {
-                   sh "docker run -p 8081:80 -d marvdocking/jenkins-nginx:devsecops-web"
+                   sh "kubectl apply -f nginx-deployment.yaml"
                 }
               }
             }
